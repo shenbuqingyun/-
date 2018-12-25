@@ -1,0 +1,163 @@
+package com.example.administrator.indicatorscroller;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.example.administrator.indicatorscroller.bean.Tensent;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import butterknife.BindView;
+
+/**
+ * 每次做JSON有关的东西，都把自己搞的怀疑人生，需要注意的细节太多了
+ * 一个JSONObject 一个JSONArray，细节真的弄得我精神分裂！！
+ */
+public class FourthActivity extends AppCompatActivity {
+    private static final String TAG = "FourthActivity";
+    private TextView textView;
+    @BindView(R.id.button)
+    Button btn;
+    @BindView(R.id.button2)
+    Button btn2;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_four);
+        // 同一个TextView使用换行符，拼接多个字段
+        textView = findViewById(R.id.textView);
+        textView.setText(createJSONObject() + "\n");
+        textView.append(createJSONArray() + "\n\n");
+        textView.append(parseJSONObject(createJSONObject()) + "\n");
+        textView.append(parseJSONArray(createJSONArray()) + "\n\n");
+    }
+
+    /**
+     * ①获取到JSON之后，进行反序列化，需创建与JSON数据中各个key值对应的实体类
+     * ②fromJson接收的第一个参数string，要求是JSONObject，而不能是JSONArray
+     * 否则报错异常 “IllegalStateException: Expected BEGIN_OBJECT but was BEGIN_ARRAY ”
+     * ③测试时如果直接拼接JSON格式数据，需放入“ ”双引号之下，这样编译器会自动在对应的位置上添加好换行符
+     * 最重要：到一个JSON格式验证网站验证，确保原始JSON格式无误。容易忽略的就是最后一个字符value值加上了逗号，
+     * 否则报错异常 “com.google.gson.stream.MalformedJsonException”
+     * 多余的空格都会引发异常，所以获取到的JSON数据一定要进行检查，确保无误！！！！！！！！！！！
+     * @param view
+     */
+    public void json_to_object_gson(View view) {
+        String str = " {\n" +
+                "    \"id\": 13,\n" +
+                "    \"node_id\": \"MD\",\n" +
+                "    \"name\": \"boy\",\n" +
+                "    \"full_name\": \"oct\",\n" +
+                "    \"is\": false\n" +
+                "  } \n";
+        Gson gson = new Gson();
+        Tensent tensent = gson.fromJson(str, Tensent.class);
+
+        String json = gson.toJson(tensent);
+        textView.append(json);
+    }
+
+    /**
+     * Gson最重要两个方法
+     * 一个是fromJson()-反序列化
+     * 另一个是toJson()-序列化
+     * @param view
+     */
+    public void object_to_json_gson(View view) {
+
+    }
+
+    /**
+     * 创建JSON对象
+     * JsonObject —— com.google.gson.JsonObject
+     * JSONObject —— org.json.JSONObject
+     * @return
+     */
+    private JSONObject createJSONObject() {
+        JsonObject jsonObject = new JsonObject(); // com.google.gson.JsonObject
+        JSONObject object = new JSONObject(); // org.json.JSONObject
+        try {
+            object.put("name", "zhangsan");
+            object.put("age", "23");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return object;
+    }
+
+    /**
+     * 创建JSON数组
+     * 数组中可以加入很多变量，但是如果需要对这个数组进行for循环取值
+     * 就必须保证里面只有JSONObject，而不能有任何的牛鬼蛇神
+     * @return
+     */
+    private String createJSONArray() {
+        JSONArray jsonArray = new JSONArray();
+//        jsonArray.put("wanwu"); Value wanwu at 0 of type java.lang.String cannot be converted to JSONObject
+//        jsonArray.put("lisi");
+        JSONObject object1 = new JSONObject();
+        JSONObject object2 = new JSONObject();
+        try {
+            object1.put("name", "wanwu");
+            object1.put("age", "26");
+            object2.put("name", "lisi");
+            object2.put("age", "24");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        jsonArray.put(object1);
+        jsonArray.put(object2);
+        return jsonArray.toString();
+    }
+
+    /**
+     * 解析单个JSONObject
+     * @param jsonObject
+     * @return
+     */
+    private String parseJSONObject(JSONObject jsonObject) {
+        // 定义一个空字符串用以拼接解析出来的json value
+        String ret = " ";
+        String name = jsonObject.optString("name");
+        String age = jsonObject.optString("age");
+        if (!TextUtils.isEmpty("name")) {
+            ret += "name:" + name + " ";
+        }
+        if (!TextUtils.isEmpty("age")) {
+            ret += "age:" + age + " ";
+        }
+        return ret;
+    }
+
+    /**
+     * 解析JSONArray
+     * @param array
+     * @return
+     */
+    private String parseJSONArray(String array) {
+        String ret = " ";
+        try {
+            JSONArray jsonArray = new JSONArray(array);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                // 注意数组中都要求是JSONObject 而不能是单个的字符串 否则不能转换为JSONObject
+                // 会报warning：Value wanwu at 0 of type java.lang.String cannot be converted to JSONObject
+                JSONObject object = jsonArray.getJSONObject(i);
+                ret += parseJSONObject(object);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+}
