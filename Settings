@@ -1,0 +1,12 @@
+使用各种Intent跳转各种系统设置界面，比如wifi、数据、蓝牙、声音、日期、语言、输入法、开发者选项、应用列表页。
+
+移动数据-Intent intent = new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS); 
+网络-Intent intent = new Intent(Settings.ACTION_WIFI_SETTINGS);
+输入法-Intent intent = new Intent(Settings.ACTION_INPUT_METHOD_SETTINGS);
+日期-Intent intent = new Intent(Settings.ACTION_DATE_SETTINGS);
+蓝牙-Intent intent = new Intent(Settings.ACTION_BLUETOOTH_SETTINGS); 
+
+Android跳转各种系统设置界面-总结 - 泡网
+http://www.jcodecraeer.com/a/anzhuokaifa/androidkaifa/2017/0921/8536.html
+Android开发中常用的跳转系统自带界面方法 - 红黑联盟
+https://www.2cto.com/kf/201401/271798.html
