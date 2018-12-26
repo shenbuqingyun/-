@@ -1,0 +1,136 @@
+package com.example.administrator.indicatorscroller;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
+
+import com.blankj.utilcode.constant.PermissionConstants;
+import com.blankj.utilcode.util.LogUtils;
+import com.blankj.utilcode.util.PermissionUtils;
+import com.blankj.utilcode.util.ScreenUtils;
+
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * 作者    cpf
+ * 时间    2018/12/26 16:17
+ * 文件    IndicatorScroller
+ * 描述    Build类获取手机制造商，系统定制商，型号，Android 系统版本，CPU 指令集，可以查看是否支持64位等
+ */
+public class SystemUtil {
+
+    /**
+     * 获取当前手机系统语言。
+     * @return 返回当前系统语言。例如：当前设置的是“中文-中国”，则返回“zh-CN”
+     */
+    public static String getSystemLanguage() {
+        return Locale.getDefault().getLanguage();
+    }
+
+    /**
+     * 获取当前系统上的语言列表(Locale列表)
+     * @return 语言列表
+     */
+    public static Locale[] getSystemLanguageList() {
+        return Locale.getAvailableLocales();
+    }
+
+    /**
+     * 获取当前手机系统版本号
+     * @return 系统版本号 6.0.1
+     */
+    public static String getSystemVersion() {
+        return android.os.Build.VERSION.RELEASE;
+    }
+
+    /**
+     * 获取手机型号
+     * @return 手机型号 MI 4LTE
+     */
+    public static String getSystemModel() {
+        return android.os.Build.MODEL;
+    }
+
+    /**
+     * 获取手机厂商
+     * @return 手机厂商 Xiaomi
+     */
+    public static String getDeviceBrand() {
+        return android.os.Build.BRAND;
+    }
+
+    /**
+     * 获取产品的整个名称
+     * @return cancro_wc_lte
+     */
+    public static String getProduct() {
+        return android.os.Build.PRODUCT;
+    }
+
+    /**
+     * 获取系统的API级别
+     * @return 23
+     */
+    public static int getSdkVersion() {
+        return android.os.Build.VERSION.SDK_INT;
+    }
+
+    /**
+     * 获取手机IMEI(需要“android.permission.READ_PHONE_STATE”权限) 这是一个危险权限 需要动态获取
+     * @return 手机IMEI 手机IMEI：867831026165704
+     */
+    public static String getIMEI(Context ctx) {
+        TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Activity.TELEPHONY_SERVICE);
+        if (tm != null) {
+            if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.READ_PHONE_STATE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                getIMEIPermission();
+            }
+            return tm.getDeviceId();
+        }
+        return null;
+    }
+
+    /**
+     * 这里使用AndroidUtilCode中的PermissionUtils类进行PHONE这一组危险权限申请
+     * rationale               : 设置拒绝权限后再次请求的回调接口
+     * callback                : 设置回调
+     * theme                   : 设置主题
+     * request                 : 开始请求
+     */
+    public static void getIMEIPermission() {
+        PermissionUtils.permission(PermissionConstants.PHONE)
+                .rationale(new PermissionUtils.OnRationaleListener() {
+                    @Override
+                    public void rationale(final ShouldRequest shouldRequest) {
+                        DialogHelper.showRationaleDialog(shouldRequest);
+                    }
+                })
+                .callback(new PermissionUtils.FullCallback() {
+                    @Override
+                    public void onGranted(List<String> permissionsGranted) {
+                        LogUtils.d(permissionsGranted);
+                    }
+
+                    @Override
+                    public void onDenied(List<String> permissionsDeniedForever,
+                                         List<String> permissionsDenied) {
+                        if (!permissionsDeniedForever.isEmpty()) {
+                            DialogHelper.showOpenAppSettingDialog();
+                        }
+                        LogUtils.d(permissionsDeniedForever, permissionsDenied);
+                    }
+                })
+                .theme(new PermissionUtils.ThemeCallback() {
+                    @Override
+                    public void onActivityCreate(Activity activity) {
+                        ScreenUtils.setFullScreen(activity);
+                    }
+                })
+                .request();
+    }
+}
