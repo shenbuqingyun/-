@@ -1,0 +1,72 @@
+//直接使用AlertDialog
+        if (hasWindowFocus()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, AlertDialog.THEME_DEVICE_DEFAULT_LIGHT);
+            builder.setMessage(R.string.network_unavailable)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.setting, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent = new Intent(Settings.ACTION_DATE_SETTINGS);
+                            startActivity(intent);
+                            dialog.cancel();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+//创建Dialog，继承自DialogFragment
+import android.support.v4.app.DialogFragment;
+public class MatchDialog extends DialogFragment {
+
+    public MatchDialog() {
+    }
+
+    Dialog mDialog;
+    MatchTextView matchTextView;
+    MatchButton mMatchButton;
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        if (mDialog == null) {
+            mDialog = new Dialog(getActivity(), R.style.cart_dialog);
+            mDialog.setContentView(R.layout.dialog_match);
+            mDialog.setCanceledOnTouchOutside(true);
+            mDialog.getWindow().setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+            View view = mDialog.getWindow().getDecorView();
+            matchTextView = (MatchTextView) view.findViewById(R.id.mTextView);
+            matchTextView.setMatchOutListener(new MatchView.MatchOutListener() {
+                @Override
+                public void onBegin() {
+
+                }
+
+                @Override
+                public void onProgressUpdate(float progress) {
+                }
+
+                @Override
+                public void onFinish() {
+                    MatchDialog.super.onStop();
+                }
+            });
+
+            mMatchButton = (MatchButton) view.findViewById(R.id.mButton);
+            mMatchButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mMatchButton.hide();
+                    matchTextView.hide();
+                }
+            });
+        }
+        return mDialog;
+    }
+}
+搬砖 AnyDialog - 单纯的弹窗 https://github.com/goweii/AnyDialog
+搬砖 TimoMenu - 分享弹窗 https://github.com/samlss/TimoMenu
