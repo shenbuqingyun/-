@@ -1,0 +1,157 @@
+package com.example.administrator.indicatorscroller;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+
+import com.example.administrator.indicatorscroller.view.PullCircleView;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+/**
+ * 作者    cpf
+ * 时间    2018/12/28
+ * 文件    IndicatorScroller
+ * 描述    慕课网 黏性下拉控件 随手指滑动 黏性下拉控件做出变化 需要对全局下拉手势进行监听
+ */
+public class PullToActivity extends AppCompatActivity implements View.OnTouchListener {
+    private static final String TAG = "PullToActivity";
+    private float lastX, lastY;
+    private float moveX, moveY;
+    private static final float MAXMOVESIZE = 400;
+    @BindView(R.id.pull_view)
+    PullCircleView pullView;
+
+    /**
+     * it works
+     * 父容器布局LinearLayout实现OnTouchListener接口 重写onTouch()方法 内部做手势判断
+     * 常见 而且非常适合传递数据
+     * @param savedInstanceState
+     */
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_pull);
+        ButterKnife.bind(this);
+        // 黏性下拉控件的父容器布局实现OnTouchListener接口
+        findViewById(R.id.root).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float x = event.getX();
+                float y = event.getY();
+                int action = event.getActionMasked();
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = x;
+                        lastY = y;
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        moveX = x;
+                        moveY = y;
+                        float offsetX;
+                        float offsetY;
+                        float progress;
+                        offsetX = moveX - lastX;
+                        offsetY = moveY - lastY;
+                        // 以下就是经验不足的写法 将坐标点与距离进行比较
+/*                        if (moveY > lastY && moveY < MAXMOVESIZE) {
+                            offsetY = (moveY - lastY) / MAXMOVESIZE;
+                        } else {
+                            offsetY = 1;
+                        }*/
+                        // 更加标准的判断，首先判断横向的位移绝对值和纵向的位移绝对值大下
+                        if (Math.abs(offsetX) >= Math.abs(offsetY)) {
+                            // do nothing
+                        } else if (Math.abs(offsetX) < Math.abs(offsetX)) {
+                            if (moveY > lastY) {
+                                progress = offsetY >= MAXMOVESIZE ? 1 : offsetY / MAXMOVESIZE;
+                                pullView.setProgress(progress);
+                                Log.d(TAG, "onTouch:progress, " + progress);
+                            }
+                        }
+                        return true;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
+    }
+
+    /**
+     * it does not work
+     * Activity层面实现OnToucListener接口 重写onTouch方法
+     * 这种处理一般少见，除非写入GestureDetector，将事件进行拦截，然后分发给对应的事件 在onFiling()方法中做处理
+     * @param v
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+        int action = event.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                lastX = x;
+                lastY = y;
+                Log.d(TAG, "onTouch: down");
+                break;
+            case MotionEvent.ACTION_MOVE:
+                moveX = x;
+                moveY = y;
+                float offsetY;
+                float progress;
+                offsetY = moveY - lastY;
+                if (moveY > lastY) {
+                    progress = offsetY >= MAXMOVESIZE ? 1 : offsetY / MAXMOVESIZE;
+                    pullView.setProgress(progress);
+                    Log.d(TAG, "onTouch: progress, " + progress);
+                }
+                break;
+            default:
+                break;
+        }
+        return false;
+    }
+
+    /**
+     * it works
+     * Activity层面重写onTouchEvent方法，在内部做手势判断
+     * 常见 而且非常适合传递数据
+     * 像在自定义view内部直接重写onTouchEvent方法一样
+     * @param event
+     * @return
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+        int action = event.getActionMasked();
+        switch (action) {
+            case MotionEvent.ACTION_DOWN:
+                lastX = x;
+                lastY = y;
+                return true;
+            case MotionEvent.ACTION_MOVE:
+                moveX = x;
+                moveY = y;
+                float offsetY;
+                float progress;
+                offsetY = moveY - lastY;
+                if (moveY > lastY) {
+                    progress = offsetY >= MAXMOVESIZE ? 1 : offsetY / MAXMOVESIZE;
+                    pullView.setProgress(progress);
+                    Log.d(TAG, "onTouchEvent: progress, " + progress);
+                }
+                return true;
+            default:
+                break;
+        }
+        return true;
+    }
+}
