@@ -27,7 +27,7 @@ public class PullToActivity extends AppCompatActivity implements View.OnTouchLis
     PullCircleView pullView;
 
     /**
-     * it works
+     * it works！
      * 父容器布局LinearLayout实现OnTouchListener接口 重写onTouch()方法 内部做手势判断
      * 常见 而且非常适合传递数据
      * @param savedInstanceState
@@ -83,7 +83,7 @@ public class PullToActivity extends AppCompatActivity implements View.OnTouchLis
     }
 
     /**
-     * it does not work
+     * it does not work！
      * Activity层面实现OnToucListener接口 重写onTouch方法
      * 这种处理一般少见，除非写入GestureDetector，将事件进行拦截，然后分发给对应的事件 在onFiling()方法中做处理
      * @param v
@@ -120,7 +120,7 @@ public class PullToActivity extends AppCompatActivity implements View.OnTouchLis
     }
 
     /**
-     * it works
+     * it works！
      * Activity层面重写onTouchEvent方法，在内部做手势判断
      * 常见 而且非常适合传递数据
      * 像在自定义view内部直接重写onTouchEvent方法一样
