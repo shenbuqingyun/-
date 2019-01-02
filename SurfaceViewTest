@@ -1,0 +1,109 @@
+package com.example.administrator.indicatorscroller.surfaceview;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.util.AttributeSet;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+
+/**
+ * 作者    cpf
+ * 时间    2018/12/29
+ * 文件    IndicatorScroller
+ * 描述    群英传 SurfaceView模板代码 + 实现一个简单的正炫曲线
+ */
+public class SurfaceViewTest extends SurfaceView implements SurfaceHolder.Callback, Runnable {
+    private static final String TAG = "SurfaceViewTest";
+    private SurfaceHolder mHolder; // 使用SurfaceView时离不开SurfaceHolder
+    private Canvas mCanvas; // 用于绘图的Canvas
+    private boolean mIsDrawing; // 子线程标志位 用以控制子线程
+    private Path mPath;
+    private Paint mPaint;
+    public SurfaceViewTest(Context context) {
+        super(context);
+        initView();
+    }
+
+    public SurfaceViewTest(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
+
+    public SurfaceViewTest(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
+
+    private void initView() {
+        mHolder = getHolder();
+        mHolder.addCallback(this); // 注册SurfaceHolder.Callback接口
+        setFocusable(true);
+        setFocusableInTouchMode(true);
+        this.setKeepScreenOn(true);
+        mPath = new Path();
+        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mPaint.setDither(true);
+        mPaint.setColor(Color.BLUE);
+        mPaint.setStrokeWidth(10);
+        mPaint.setStyle(Paint.Style.STROKE);
+        mPaint.setStrokeCap(Paint.Cap.ROUND);
+        mPaint.setStrokeJoin(Paint.Join.ROUND);
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        mIsDrawing = true;
+        mPath.moveTo(0, 400);
+        // 在surfaceCreated()方法中开启子线程进行绘制
+        new Thread(this).start();
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        mIsDrawing = false;
+    }
+
+    int x, y;
+    /**
+     * 群英传 模拟画一个正弦曲线
+     */
+    @Override
+    public void run() {
+
+        while (mIsDrawing) {
+            draw();
+            // 子线程使用循环来不停地调用绘制方法进行绘制
+            x += 1;
+            y = (int) (100 * Math.sin(x*2*Math.PI / 180) + 400);
+            mPath.lineTo(x, y);
+        }
+    }
+
+    /**
+     * 将mHolder.unlockCanvasAndPost(mCanvas)置于finally代码块中，来保证每次都能将内容提交
+     */
+    private void draw(){
+        try {
+            // surfaceHolder.lockCanvas()获取Canvas对象 用以绘制
+            mCanvas = mHolder.lockCanvas();
+            // canvas draw something
+            mCanvas.drawColor(Color.WHITE); // 调用drawColor方法用以清屏
+            mCanvas.drawPath(mPath,mPaint);
+//            mCanvas.drawColor(Color.RED);
+        }catch (Exception e){
+        }finally {
+            // surfaceHolder.unlockCanvasAndPost(mCanvas)对画布内容进行提交
+            if (mCanvas != null) {
+                mHolder.unlockCanvasAndPost(mCanvas);
+            }
+        }
+    }
+}
