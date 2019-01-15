@@ -1,0 +1,52 @@
+    /**
+     * 创建大小可控的圆角弹窗
+     */
+    public void showDialog(Context context){
+        View view = View.inflate(context, R.layout.dialog_purchae_request,null);
+        TextView mConfirm; //确认
+        TextView mCancel; //取消
+        mConfirm = view.findViewById(R.id.purchase_ok);
+        mCancel = view.findViewById(R.id.purchase_cancel);
+        dialog = new Dialog(context);
+        dialog.setContentView(view);
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        int divierId = context.getResources().getIdentifier("android:id/titleDivider", null, null);
+        View divider = dialog.findViewById(divierId);
+        if (divider != null) {
+            divider.setBackgroundColor(Color.TRANSPARENT);
+        }
+
+        mConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRewardAd();
+//                dialog.dismiss(); // 弹窗消失在请求广告成功或者失败之后调用
+            }
+        });
+
+        mConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                dialog.dismiss();
+            }
+        });
+
+        try {
+            dialog.show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes(); //获取对话框当前的参数值
+        p.width = Math.round(SizeUtils.dp2px(312));
+        p.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        p.gravity = Gravity.CENTER_VERTICAL;
+        if (mScreenRatio > 1.8) {
+            p.y = -Math.round(SizeUtils.dp2px(20));
+        } else {
+            p.y = -Math.round(SizeUtils.dp2px(45));
+        }
+/*        dialog.setCancelable(false); //false 此弹窗点击空白处不可取消
+        dialog.setCanceledOnTouchOutside(false);*/
+        dialog.getWindow().setAttributes(p);
+    }
