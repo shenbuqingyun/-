@@ -1,0 +1,66 @@
+    
+    // 最关键的就是对Text进行测量
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        measureText();
+
+        int width = measureWidth(widthMeasureSpec);
+        int height = measureHeight(heightMeasureSpec);
+        setMeasuredDimension(width, height);
+
+        mTextStartX = (int) (getMeasuredWidth() / 2 - mTextWidth / 2);
+        mTextStartY = (int) (getMeasuredHeight() / 2 - mTextHeight / 2);
+    }
+
+    private int measureHeight(int measureSpec) {
+        int mode = MeasureSpec.getMode(measureSpec);
+        int val = MeasureSpec.getSize(measureSpec);
+        int result = 0;
+        switch (mode) {
+            case MeasureSpec.EXACTLY:
+                result = val;
+                break;
+            case MeasureSpec.AT_MOST:
+                result = (int) (mTextBound.height());
+                result += getPaddingTop() + getPaddingBottom();
+
+                result = Math.min(result, val);
+                break;
+        }
+        return result;
+    }
+
+    private int measureWidth(int measureSpec) {
+        int mode = MeasureSpec.getMode(measureSpec);
+        int val = MeasureSpec.getSize(measureSpec);
+        int result = 0;
+        switch (mode) {
+            case MeasureSpec.EXACTLY:
+                result = val;
+                break;
+            case MeasureSpec.AT_MOST:
+                result = mTextWidth;
+                result += getPaddingLeft() + getPaddingRight();
+
+                result = (int) (Math.min(result, val));
+                break;
+            case MeasureSpec.UNSPECIFIED:
+                result = (int) (mTextWidth );
+                result += getPaddingLeft() + getPaddingRight();
+                break;
+        }
+        return result;
+    }
+
+    private void measureText() {
+        mTextWidth = (int) mPaint.measureText(mText); // measureText 返回宽度
+        FontMetrics fm = mPaint.getFontMetrics();
+        mTextHeight = (int) Math.ceil(fm.descent - fm.top);
+        mPaint.getTextBounds(mText, 0, mText.length(), mTextBound);
+        mTextHeight = mTextBound.height(); // getTextBounds 返回高度
+    }
+    
+    canvas.drawText(mText, mTextStartX,
+                getMeasuredHeight() / 2
+                        - ((mPaint.descent() + mPaint.ascent()) / 2), mPaint);
