@@ -19,16 +19,16 @@
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showRewardAd();
-//                dialog.dismiss(); // 弹窗消失在请求广告成功或者失败之后调用
+
+                dialog.dismiss(); // 确认时弹窗消失
             }
         });
 
-        mConfirm.setOnClickListener(new View.OnClickListener() {
+        mCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                dialog.dismiss();
+                dialog.dismiss(); // 取消时弹窗消失
             }
         });
 
