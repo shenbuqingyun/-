@@ -93,12 +93,16 @@ public class Transitions extends Activity {
             case 0:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                     // 前三种过渡动画可以自己设置动画时间和插值器
-                    getWindow().setEnterTransition(new Explode().setDuration(500).setInterpolator(new OvershootInterpolator()));
+                    getWindow().setEnterTransition(new Explode().setDuration(500)
+                    .setInterpolator(new OvershootInterpolator()));
                 }
                 break;
             case 1:
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    getWindow().setEnterTransition(new Slide());
+                    // 每个动画有自己的api方法 需要根据需求去设置
+                    Slide slide = new Slide();
+                    slide.setSlideEdge(Gravity.BOTTOM);
+                    getWindow().setEnterTransition(slide);
                 }
                 break;
             case 2:
@@ -116,7 +120,7 @@ public class Transitions extends Activity {
     }
 }
 
-Share 动画定义的两个共享元素
+    XML布局中 使用Share动画定义的两个共享元素
     <Button
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -132,6 +136,7 @@ Share 动画定义的两个共享元素
         android:background="#d69564"
         android:transitionName="share"
         tools:ignore="NewApi" />
+        
  进阶：Android高阶转场动画完全攻略（自定义Trans） https://mp.weixin.qq.com/s/QpIZekpb1xKsseu5urOndA##
  用在视频软件和图片软件中
  Android-Animation-Set （Fragement中使用Trans） 
