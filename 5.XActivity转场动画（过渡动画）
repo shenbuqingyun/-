@@ -1,0 +1,134 @@
+/**
+ * 作者    cpf
+ * 时间    2019/1/22
+ * 文件    IndicatorScroller
+ * 描述    Android5.0 转场动画 又称为过渡动画
+ *        四种过渡动画 前三种是一样的定义和使用方式
+ *        第四种分享过渡动画需要另外定义 传入不同的参数 并不难掌握
+ * Activity A
+ */
+public class TransitionsActivity extends Activity {
+
+    private Intent intent;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_transition);
+    }
+
+    // 设置不同动画效果
+    public void explode(View view) {
+        intent = new Intent(this, Transitions.class);
+        intent.putExtra("flag", 0);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                    ActivityOptions.makeSceneTransitionAnimation(this)
+                            .toBundle());
+        }
+    }
+
+    // 设置不同动画效果
+    public void slide(View view) {
+        intent = new Intent(this, Transitions.class);
+        intent.putExtra("flag", 1);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                    ActivityOptions.makeSceneTransitionAnimation(this)
+                            .toBundle());
+        }
+    }
+
+    // 设置不同动画效果
+    public void fade(View view) {
+        intent = new Intent(this, Transitions.class);
+        intent.putExtra("flag", 2);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                    ActivityOptions.makeSceneTransitionAnimation(this)
+                            .toBundle());
+        }
+    }
+
+    // 设置不同动画效果
+    public void share(View view) {
+        View fab = findViewById(R.id.fab_button);
+        intent = new Intent(this, Transitions.class);
+        intent.putExtra("flag", 3);
+        // 创建单个共享元素
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                    ActivityOptions.makeSceneTransitionAnimation(
+                            this, view, "share").toBundle());
+        }
+/*        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            startActivity(intent,
+                    ActivityOptions.makeSceneTransitionAnimation(
+                            this,
+                            // 创建多个共享元素
+                            Pair.create(view, "share"),
+                            Pair.create(fab, "fab")).toBundle());
+        }*/
+    }
+}
+// Activity B
+public class Transitions extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        int flag = getIntent().getExtras().getInt("flag");
+        /**
+         * 设置不同的动画效果
+         * 注意无论是进场动画还是出场动画都是定义在要进入的Activity里
+         * 而且可以定义的动画类型只有三种Explode Slide Fade
+         * share共享动画不是定义在这里的 在两个XML布局中定义好共同的transitionName-共享元素之后
+         * 然后在startActivity(intent，ActivityOptions.makeSceneTransitionAnimation(
+           this, view, "share").toBundle()); 传入参数即可完成调用
+         * 对于共享元素的View并没有要求，只要定义好共同的transitionName即可完成分享动画！
+         * 孔夫子-是ImageView与ImageView之间的共享，这是比较常见的
+         * */
+        switch (flag) {
+            case 0:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    // 前三种过渡动画可以自己设置动画时间和插值器
+                    getWindow().setEnterTransition(new Explode().setDuration(500).setInterpolator(new OvershootInterpolator()));
+                }
+                break;
+            case 1:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setEnterTransition(new Slide());
+                }
+                break;
+            case 2:
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setEnterTransition(new Fade());
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    getWindow().setExitTransition(new Fade());
+                }
+                break;
+            case 3:
+                break;
+        }
+        setContentView(R.layout.activity_transition_to);
+    }
+}
+
+Share 动画定义的两个共享元素
+    <Button
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:onClick="share"
+        android:text="share"
+        android:background="#d69564"
+        android:transitionName="share" />
+    
+    <View
+        android:id="@+id/holder_view"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="#d69564"
+        android:transitionName="share"
+        tools:ignore="NewApi" />
