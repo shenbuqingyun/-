@@ -1,0 +1,60 @@
+    // 可以在XML布局中直接使用属性引入水波纹效果 也可以利用Ripple标签重建 注意21 要做两套
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#9f9d9d">
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:text="有界波纹"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:text="有界波纹"
+            android:textColor="#ffffff"
+            tools:ignore="NewApi" />
+
+        <Button
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:background="@drawable/ripple_heros"
+            android:text="Xml波纹"
+            android:textColor="#ffffff"
+            tools:ignore="NewApi" />
+    </LinearLayout>
+    
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:color="@color/colorPrimaryDark"
+    tools:targetApi="lollipop"><!--点击时的颜色 -->
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#9f9d9d"/> <!-- 未点击时的状态-->
+        </shape>
+    </item>
+</ripple>
+——《群英传》中使用了shape 实际上可以不使用这样效果更自由一些
+
+计算器实例
+drawable包下—— 普使用
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#FFf0f0f0">
+    
+</selector>
+drawable-v21包下——适用于高API
+<?xml version="1.0" encoding="utf-8"?>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="@color/custom_nav_ripple">
+    <item
+        android:id="@android:id/mask"
+        android:drawable="@android:color/white" />
+</ripple >
