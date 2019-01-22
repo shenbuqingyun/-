@@ -132,3 +132,7 @@ Share 动画定义的两个共享元素
         android:background="#d69564"
         android:transitionName="share"
         tools:ignore="NewApi" />
+ 进阶：Android高阶转场动画完全攻略（自定义Trans） https://mp.weixin.qq.com/s/QpIZekpb1xKsseu5urOndA##
+ 用在视频软件和图片软件中
+ Android-Animation-Set （Fragement中使用Trans） 
+ https://github.com/OCNYang/Android-Animation-Set/tree/master/transition-animation
