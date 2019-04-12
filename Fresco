@@ -1,0 +1,249 @@
+package com.example.administrator.testapplication.nufour;
+
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.Animatable;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+
+import com.example.administrator.testapplication.R;
+import com.facebook.cache.disk.DiskCacheConfig;
+import com.facebook.common.logging.FLog;
+import com.facebook.common.memory.MemoryTrimType;
+import com.facebook.common.memory.MemoryTrimmableRegistry;
+import com.facebook.common.memory.NoOpMemoryTrimmableRegistry;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.controller.BaseControllerListener;
+import com.facebook.drawee.controller.ControllerListener;
+import com.facebook.drawee.drawable.ProgressBarDrawable;
+import com.facebook.drawee.generic.GenericDraweeHierarchy;
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.cache.MemoryCacheParams;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
+import com.facebook.imagepipeline.core.ImagePipelineFactory;
+import com.facebook.imagepipeline.decoder.ProgressiveJpegConfig;
+import com.facebook.imagepipeline.image.ImageInfo;
+import com.facebook.imagepipeline.image.ImmutableQualityInfo;
+import com.facebook.imagepipeline.image.QualityInfo;
+import com.facebook.imagepipeline.listener.RequestListener;
+import com.facebook.imagepipeline.request.BasePostprocessor;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
+import com.facebook.imagepipeline.request.Postprocessor;
+
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * 作者    cpf
+ * 时间    2019/4/12 16:06
+ * 文件    TestApplication
+ * 描述
+ */
+public class FrescoActivity extends AppCompatActivity {
+    private static final String URl = "http://himg2.huanqiu.com/attachment2010/2012/0808/20120808100424609.jpg";
+    private SimpleDraweeView draweeView, draweeView_2;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Fresco.initialize(this); // 直接使用默认的配置
+        setContentView(R.layout.activity_fresco);
+        initDraweeView();
+    }
+
+    private void initDraweeView() {
+        Uri uri_http = Uri.parse(URl);
+        Uri uri_res = Uri.parse("res://com.example.administrator.testapplication/" + R.drawable.icon_placeholder);
+        draweeView = findViewById(R.id.my_image_view);
+        draweeView.setImageURI(uri_res);
+
+        draweeView_2 = findViewById(R.id.my_image_view_two);
+        draweeView_2.setImageURI(uri_http);
+
+        GenericDraweeHierarchyBuilder builder =
+                new GenericDraweeHierarchyBuilder(getResources());
+        GenericDraweeHierarchy hierarchy = builder
+                .setFadeDuration(300)
+                .build();
+        draweeView.setHierarchy(hierarchy);
+
+    }
+
+    // 为加载过程中加入监听 比如监听网络图片的下载
+    // 所有的图片加载，onFinalImageSet 或者 onFailure 都会被触发。前者在成功时，后者在失败时。
+    private void initListener() {
+        ControllerListener controllerListener = new BaseControllerListener<ImageInfo>() {
+            @Override
+            public void onFinalImageSet(
+                    String id,
+                    @Nullable ImageInfo imageInfo,
+                    @Nullable Animatable anim) {
+                if (imageInfo == null) {
+                    return;
+                }
+                if (anim != null) {
+                    // 其他控制逻辑
+                    anim.start(); // 加载成功后的动画
+                }
+                QualityInfo qualityInfo = imageInfo.getQualityInfo();
+                FLog.d("Final image received! " +
+                                "Size %d x %d",
+                        "Quality level %d, good enough: %s, full quality: %s",
+                        imageInfo.getWidth(),
+                        imageInfo.getHeight(),
+                        qualityInfo.getQuality(),
+                        qualityInfo.isOfGoodEnoughQuality(),
+                        qualityInfo.isOfFullQuality());
+            }
+
+            @Override
+            public void onIntermediateImageSet(String id, @Nullable ImageInfo imageInfo) {
+                Log.d("", "Intermediate image received");
+            }
+
+            @Override
+            public void onFailure(String id, Throwable throwable) {
+                FLog.e(getClass(), throwable, "Error loading %s", id);
+            }
+        };
+
+
+        Uri uri = Uri.parse(URl);
+        // 修改图片 给图片加了红色网格
+        Postprocessor redMeshPostprocessor = new BasePostprocessor() {
+            @Override
+            public String getName() {
+                return "redMeshPostprocessor";
+            }
+
+            @Override
+            public void process(Bitmap bitmap) {
+                for (int x = 0; x < bitmap.getWidth(); x+=2) {
+                    for (int y = 0; y < bitmap.getHeight(); y+=2) {
+                        bitmap.setPixel(x, y, Color.RED);
+                    }
+                }
+            }
+        };
+
+        // Fresco 支持渐进式的网络JPEG图。在开始加载之后，图会从模糊到清晰渐渐呈现
+        ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
+                .setProgressiveRenderingEnabled(true) // 渐进式JPEG图
+                .setPostprocessor(redMeshPostprocessor) // 给图片加了红色网格
+                .build();
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setControllerListener(controllerListener) // 加载监听器
+                .setImageRequest(request) // 渐进式JPEG图
+                .setTapToRetryEnabled(true) // 点击重新加载
+                .setOldController(draweeView_2.getController()) // 在指定一个新的controller的时候，使用setOldController，这可节省不必要的内存分配
+                .build();
+        /*使用了.setImageRequest(request) 就不再使用.setUri(uri) */
+        draweeView_2.setController(controller);
+    }
+
+
+    不使用默认的配置 而是自己配置
+
+    // 1.2 设置磁盘缓存
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setMainDiskCacheConfig(DiskCacheConfig.newBuilder(context)
+            .setBaseDirectoryPath(context.getExternalCacheDir())//设置磁盘缓存的路径
+            .setBaseDirectoryName(BaseConstants.APP_IMAGE)//设置磁盘缓存文件夹的名称
+            .setMaxCacheSize(MAX_DISK_CACHE_SIZE)//设置磁盘缓存的大小
+            .build());
+    // 1.3 设置内存缓存
+    // 设置已解码的内存缓存（Bitmap缓存）
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setBitmapMemoryCacheParamsSupplier(new Supplier<MemoryCacheParams>() {
+        public MemoryCacheParams get() {
+            int MAX_HEAP_SIZE = (int) Runtime.getRuntime().maxMemory();
+            int MAX_MEMORY_CACHE_SIZE = MAX_HEAP_SIZE / 5;//取手机内存最大值的五分之一作为可用的最大内存数
+
+            MemoryCacheParams bitmapCacheParams = new MemoryCacheParams( //
+                    // 可用最大内存数，以字节为单位
+                    MAX_MEMORY_CACHE_SIZE,
+                    // 内存中允许的最多图片数量
+                    Integer.MAX_VALUE,
+                    // 内存中准备清理但是尚未删除的总图片所可用的最大内存数，以字节为单位
+                    MAX_MEMORY_CACHE_SIZE,
+                    // 内存中准备清除的图片最大数量
+                    Integer.MAX_VALUE,
+                    // 内存中单图片的最大大小
+                    Integer.MAX_VALUE);
+            return bitmapCacheParams;
+        }
+    });
+    // 设置未解码的内存缓存
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setEncodedMemoryCacheParamsSupplier(new Supplier<MemoryCacheParams>() {
+        public MemoryCacheParams get() {
+
+            MemoryCacheParams bitmapCacheParams;
+            //设置大小，可参考上面已解码的内存缓存
+            return bitmapCacheParams;
+        }
+    });
+    // 1.4 设置内存紧张时的应对措施
+    MemoryTrimmableRegistry memoryTrimmableRegistry = NoOpMemoryTrimmableRegistry.getInstance();
+    memoryTrimmableRegistry.registerMemoryTrimmable(new MemoryTrimmable() {
+        @Override
+        public void trim(MemoryTrimType trimType) {
+            final double suggestedTrimRatio = trimType.getSuggestedTrimRatio();
+
+            if (MemoryTrimType.OnCloseToDalvikHeapLimit.getSuggestedTrimRatio() == suggestedTrimRatio
+                    || MemoryTrimType.OnSystemLowMemoryWhileAppInBackground.getSuggestedTrimRatio() == suggestedTrimRatio
+                    || MemoryTrimType.OnSystemLowMemoryWhileAppInForeground.getSuggestedTrimRatio() == suggestedTrimRatio) {
+                //清空内存缓存
+                ImagePipelineFactory.getInstance().getImagePipeline().clearMemoryCaches();
+            }
+        }
+    });
+
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setMemoryTrimmableRegistry(memoryTrimmableRegistry);
+    // 1.5 设置渐进式显示的效果
+    ProgressiveJpegConfig progressiveJpegConfig = new ProgressiveJpegConfig() {
+        @Override
+        public int getNextScanNumberToDecode(int scanNumber) {
+            //返回下一个需要解码的扫描次数
+            return scanNumber + 2;
+        }
+
+        public QualityInfo getQualityInfo(int scanNumber) {
+            boolean isGoodEnough = (scanNumber >= 5);
+            //确定多少个扫描次数之后的图片才能开始显示。
+            return ImmutableQualityInfo.of(scanNumber, isGoodEnough, false);
+        }
+    };
+    //具体含义可参考 http://wiki.jikexueyuan.com/project/fresco/progressive-jpegs.html
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setProgressiveJpegConfig(progressiveJpegConfig);
+    //或者使用默认的效果
+    //imagePipelineConfigBuilder.setProgressiveJpegConfig(new SimpleProgressiveJpegConfig());
+    // 1.6 允许解码时调整图片大小
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setDownsampleEnabled(true);
+    // 1.7 开启Log
+    FLog.setMinimumLoggingLevel(FLog.VERBOSE);
+    Set<RequestListener> requestListeners = new HashSet<>();
+    requestListeners.add(new RequestLoggingListener());
+
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    imagePipelineConfigBuilder.setRequestListeners(requestListeners);
+    // 1.8 最终初始化 - 即不使用默认的配置 而是自己配置
+    ImagePipelineConfig.Builder imagePipelineConfigBuilder = ImagePipelineConfig.newBuilder(context);
+    //...进行各种设置
+    ImagePipelineConfig config = imagePipelineConfigBuilder.build();
+    Fresco.initialize(context, config);
+
+    基础 https://blog.csdn.net/wyb112233/article/details/49637685
+    基础 https://blog.csdn.net/yw59792649/article/details/78921025#commentBox
+    高级 https://www.jianshu.com/p/5b5625612f56/
+    高级 https://blog.csdn.net/android_ls/article/details/53137867#commentBox
+}
