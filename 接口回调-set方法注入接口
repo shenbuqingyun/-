@@ -1,0 +1,61 @@
+public interface CallBack {
+
+    void doSomeThing(String string);
+
+}
+
+
+public class CallBackUtils {
+
+    private CallBack mCallBack;
+
+    public void setCallBack(CallBack callBack) {
+        mCallBack = callBack;
+
+        num = 1;
+        bht = new bhThread();
+        bht.start();
+    }
+
+    private bhThread bht = null;
+    public static int num;
+
+    class bhThread extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            while (!Thread.interrupted()) {
+                while (num >= 0) {
+                    mCallBack.doSomeThing(num + "");
+
+                    try {
+                        Thread.sleep(400);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    num++;
+                }
+
+            }
+        }
+    }
+}
+
+
+public class MainActivity extends Activity implements CallBack {
+
+    CallBackUtils cu;
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        cu = new CallBackUtils();
+        cu.setCallBack(this);
+
+    }
+
+    public void doSomeThing(String string) {
+        Log.e("=====", "=====" + string);
+    }
+}
