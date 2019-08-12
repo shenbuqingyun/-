@@ -1,0 +1,99 @@
+    /**
+     * 功能 - 创建一个全局居中显示的圆角弹窗 （全局100%居中 + 圆角）
+     * 实现圆角的另一思路：使用CardView
+     * 依赖 implementation 'com.android.support:cardview-v7:27.1.1'
+     * 实际开发中，如果是要创建指定样式的Dialog，就可以使用这段定时代码；
+     * 如果要使用系统样式，则使用AlertDialog，然后指定不同的样式即可
+     */
+    private void showDialog(){
+        View view =View.inflate(this, R.layout.dialog_circle_activity, null);
+        LinearLayout ll_1 = view.findViewById(R.id.dialog_ll_1);
+        LinearLayout ll_2 = view.findViewById(R.id.dialog_ll_2);
+        /*以下外包一个直接子view 然后使用一个drawable文件作为背景 实现圆角*/
+/*        LinearLayout ll = view.findViewById(R.id.dialog_ll);
+        ll.setBackgroundResource(R.drawable.circle_corner);*/
+        ll_1.setBackgroundColor(Color.parseColor("#ffff8080"));
+        ll_2.setBackgroundColor(Color.parseColor("#ffff8080"));
+        ll_1.setOnClickListener(v -> Toast.makeText(CircleImageViewActivity.this, "clicked", Toast.LENGTH_SHORT).show());
+        Dialog dialog = new Dialog(this);
+        /*以下声明至关重要，真正做到全屏显示，不会在屏幕上方留下小刘海而导致弹窗无法全局显示*/
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        dialog.setContentView(view);
+        /*以下代码片暂不知道具体功能*/
+        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        int divierId = getResources().getIdentifier("android:id/titleDivider", null, null);
+        View divider = dialog.findViewById(divierId);
+        if (divider != null) {
+            divider.setBackgroundColor(Color.TRANSPARENT);
+        }
+        dialog.show();
+        /*以下代码至关重要，真正指定整个Dialog在屏幕中的显示大小*/
+        android.view.WindowManager.LayoutParams p = dialog.getWindow().getAttributes();
+        p.width = WindowManager.LayoutParams.MATCH_PARENT;
+        p.height = WindowManager.LayoutParams.MATCH_PARENT;
+        p.gravity = Gravity.CENTER;
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.getWindow().setAttributes(p);
+    }
+    
+    圆角drawable
+    <?xml version="1.0" encoding="UTF-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#00606060" />
+    <!--圆角弹窗的秘籍就在加入了描边 描边颜色控制位Dialog主色一致就可以实现 圆角的效果-->
+    <stroke
+        android:width="3dp"
+        android:color="#ffff8080" />
+    <corners android:radius="10dp" />
+    <!--圆角弹窗一定要加上padding值-->
+    <padding
+        android:bottom="3dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="3dp" />
+</shape>
+
+    Activity布局文件
+    <?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/dialog_root_ll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/__picker_common_primary"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="16dp">
+
+        <LinearLayout
+            android:id="@+id/dialog_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/dialog_ll_1"
+                android:layout_width="307dp"
+                android:layout_height="177dp"
+                android:background="@color/__picker_black_40" />
+
+            <LinearLayout
+                android:id="@+id/dialog_ll_2"
+                android:layout_width="307dp"
+                android:layout_height="300dp"
+                android:background="@color/__picker_item_photo_border_n" />
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>
+    
+    
