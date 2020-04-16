@@ -1,0 +1,13 @@
+       for (int i = 0; i < 26; i++) {
+            RecyclerEntity entify = new RecyclerEntity();
+            entify.setId("models/style" + i + ".png");
+            entify.setName(name[i]);
+            list.add(entify);
+        }
+        /*Artist Cam 逆序添加风格化滤镜 打乱顺序*/
+        for (int i = 25; i >= 0 ; i--) {
+            RecyclerEntity entify = new RecyclerEntity();
+            entify.setId("models/style" + i + ".png");
+            entify.setName(name[i]);
+            list.add(entify);
+        }
