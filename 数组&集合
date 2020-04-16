@@ -1,0 +1,5 @@
+    private String[] name = {"Air, Iron, and Water", "Pop", "Black Spot", "Color", "Rural",
+            "Compositions", "Dawn", "Evening Tones", "Leaves", "Crafts",
+            "Secret", "Fall", "La ville de Paris", "Drawing", "Daydream",
+            "Women", "Bracha", "Pattern", "Sigalion", "Starry Night",
+            "Fight", "The Mellow Pad", "The stairway", "American girl", "Wave", "Wild garden"};
