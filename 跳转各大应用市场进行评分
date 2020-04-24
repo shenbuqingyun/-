@@ -1,0 +1,28 @@
+Android跳转到应用商店详情页面（更全面） https://www.jianshu.com/p/81c3503e4a0f 包含国内各大厂商的应用市场跳转，代码直接可用。
+Android应用如何跳转到应用市场详情页面  https://www.jianshu.com/p/2165acb5d1eb 跳转三星市场
+
+  
+    private static boolean startActivity(Context context, Intent aIntent) {
+        try {
+            context.startActivity(aIntent);
+            return true;
+        } catch (ActivityNotFoundException e) {
+            return false;
+        }
+    }
+
+    //跳转到google市场
+    public static void gotoGooglePlay(Context context) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse("market://details?id=" + PACKAGENAME));
+        intent.setPackage("com.android.vending");
+        if (!startActivity(context, intent)) {
+            // Market (Google playMusic) app seems not installed, let's try to open a web browser
+            intent.setData(Uri.parse("https://play.google.com/store/apps/details?id=" + PACKAGENAME));
+            intent.setPackage(null);
+            if (!startActivity(context, intent)) {
+                // Well if this also fails, we have run out of options, inform the user.
+                Toast.makeText(context, context.getString(R.string.no_hawei_play_toast), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
