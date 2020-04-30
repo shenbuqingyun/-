@@ -1,0 +1,16 @@
+                ObjectAnimator scaleAnimatorX = ObjectAnimator.ofFloat(mRate, "scaleX", 1f, 0.95f);
+                ObjectAnimator scaleAnimatorSX = ObjectAnimator.ofFloat(mRate, "scaleX", 0.95f, 1f);
+                ObjectAnimator scaleAnimatorY = ObjectAnimator.ofFloat(mRate, "scaleY", 1f, 0.95f);
+                ObjectAnimator scaleAnimatorSY = ObjectAnimator.ofFloat(mRate, "scaleY", 0.95f, 01f);
+                scaleAnimatorSY.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        gotoGooglePlay(SettingActivity.this, getPackageName());
+                        dialog.dismiss();
+                    }
+                });
+                AnimatorSet animSet = new AnimatorSet();
+                animSet.play(scaleAnimatorX).with(scaleAnimatorY).before(scaleAnimatorSX).before(scaleAnimatorSY);
+                animSet.setDuration(200L);
+                animSet.start();
