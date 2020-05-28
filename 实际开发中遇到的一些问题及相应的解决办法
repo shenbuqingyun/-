@@ -1,0 +1,48 @@
+1.集合的判空处理
+isEmpty() 和(list.size() == 0)都是判断List内容是否为空。
+null判断是判断有没有对list集合分配内存空间，而不是list里面内容是否为空。
+if(list!=null && !list.isEmpty()){
+//不为空的情况
+}else{
+//为空的情况
+}
+对于集合的非空判断，我们很多情景是查询出一个list，然后需要用到这个list,但是必须要进行非空判断，这个时候，很多人还是用list !=null 去比较，
+其实会出问题的，比如如果你去这样先定义一个集合List<String> list=new ArrayList<>()，这个list 并不是为null,所以你自己去判断的时候
+如果还是用list !=null，显然是拦不住，这个判断没起作用。
+对于集合的非空判断，我们直接用CollectionUtils.isNotEmpty(list)或者CollectionUtils.isNotBlank(list)去判断不会出错，因为里面会对元素数量进行判断。
+
+集合判断非空除了要验证是否为null，还要验证size是否大于0
+
+2.字符串的非空判断“”
+对于字符串的判断，比如字符串str,其实我们很多同学直接 str != null 去判断，这样是极其不准确的，因为str ==" "的时候，我们其实也想拦住，
+但的确  " "！= null,我们这行判断就没有限制住空字符串的情况。官方给到的是org.apache.commons.lang.StringUtils工具类，
+这个里面其实原理也是做了一层str != null，但是同时也判断了该字符串的长度，所以即使str ==" "的时候，用了工具类去判断，也会被校验住。
+记住一句话，无论任何时候，对于字符串的判断，用org.apache.commons.lang.StringUtils工具类去判断就可以：
+非空判断用StringUtils.isNotEmpty(str)或者StringUtils.isNotBlank(str)；
+如果是判断字符串为空，用StringUtils.isEmpty(str)或者StringUtils.isBlank(str)；这样能保证你判断这一步不会出错。
+
+3.java.lang.IllegalThreadStateException: Thread already started
+java.lang.IllegalThreadStateException 同一个Thread不能重复调用start方法
+java.lang.IllegalThreadStateException问题解决
+https://blog.csdn.net/zjj2006/article/details/37566527
+// 这个处理不行
+if (!intercomMonitorThread.isAlive()) {
+intercomMonitorThread.start();
+}
+// 采用下面这种处理
+if (null == intercomMonitorThread) {
+intercomMonitorThread = new Thread(intercommonitor);
+intercomMonitorThread.start();
+}
+
+4.项目中导入aar包和jar包的方法
+implementation(name: 'billing-1.0', ext: 'aar')
+implementation files('libs/plib-java-common.jar')
+
+5.import org.apache.http.xxxxxx 爆红，包不存在之解决办法
+因为 项目中用到了org.apache   的网络请求库。
+在android 6.0以后，Google 删除了大部分  org.apache  的大部分 库。。导致在6.0编译不通过
+可以通过上面的方法，把 sdk 编译版本 改为 5.0 。即可解决问题。
+在buildToolsVersion下边 
+defaultConfig上边
+添加一行useLibrary 'org.apache.http.legacy'
