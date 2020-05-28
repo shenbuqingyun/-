@@ -35,3 +35,15 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.appcompat.app.AlertDialog;
 import androidx.annotation.RequiresApi;
+以上是Java代码里需要进行替换的地方，下面是XML布局里面需要替换的地方。
+android.support.v7.widget.RecyclerView
+androidx.recyclerview.widget.RecyclerView
+
+android.support.v4.view.ViewPager
+androidx.viewpager.widget.ViewPager
+
+android.support.v7.widget.AppCompatButton
+androidx.appcompat.widget.AppCompatButton
+
+android.support.v7.widget.AppCompatCheckBox
+androidx.appcompat.widget.AppCompatCheckBox
