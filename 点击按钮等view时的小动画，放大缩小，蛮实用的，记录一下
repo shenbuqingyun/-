@@ -1,0 +1,15 @@
+ObjectAnimator scaleAnimatorX = ObjectAnimator.ofFloat(mBackUp, "scaleX", 1f, 0.9f);
+                ObjectAnimator scaleAnimatorSX = ObjectAnimator.ofFloat(mBackUp, "scaleX", 0.9f, 1f);
+                ObjectAnimator scaleAnimatorY = ObjectAnimator.ofFloat(mBackUp, "scaleY", 1f, 0.9f);
+                ObjectAnimator scaleAnimatorSY = ObjectAnimator.ofFloat(mBackUp, "scaleY", 0.9f, 01f);
+                scaleAnimatorSY.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        finish();
+                    }
+                });
+                AnimatorSet animSet = new AnimatorSet();
+                animSet.play(scaleAnimatorX).with(scaleAnimatorY).before(scaleAnimatorSX).before(scaleAnimatorSY);
+                animSet.setDuration(200L);
+                animSet.start();
