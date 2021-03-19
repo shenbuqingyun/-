@@ -1,0 +1,136 @@
+    private void saveBitmapToOutput(final Bitmap bitmap) {
+        AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
+            @Override
+            public void run() {
+                Uri output = Uri.fromFile(TempActivity.this.generateImageFile());
+                final String outputPath = output.getPath();
+                Bitmap scaleBitmap = Bitmap.createBitmap(bitmap);
+
+                // 图片保存本地
+                Bitmap.CompressFormat format = Bitmap.CompressFormat.JPEG;
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(new File(outputPath));
+                    if (start_btn != null) {
+                        if (scaleBitmap.compress(format, 100, fos)) {
+                            // 保存成功 将图片地址信息回传
+                            start_btn.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Log.d(TAG, "run doInBackground: " + outputPath);
+                                    Intent intent = new Intent();
+                                    intent.setData(Uri.parse(outputPath));
+                                    TempActivity.this.setResult(Activity.RESULT_OK, intent);
+                                    TempActivity.this.finish();
+                                }
+                            });
+                        } else {
+                            // 保存失败
+                            start_btn.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(TempActivity.this, "Wrong", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "goToCropAct saveBitmapToOutput: " + e.getMessage());
+                } finally {
+                    try {
+                        if (fos != null) {
+                            fos.close();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+    
+        private File generateImageFile() {
+            File file = getExternalCacheDir();
+            String fileName = "TEMP_IMG_" + System.currentTimeMillis() + ".jpg";
+            return new File(file, fileName);
+        }
+        以上代码，是将一个Bitmap永久地存在本地cache文件夹下，/storage/emulated/0/Android/data/camera.editor.art.javatest/cache/TEMP_IMG_1616134115059.jpg
+        对应为手机的“清除缓存功能”
+        
+        
+            class SaveImageTask extends AsyncTask<Void, Void, Boolean> {
+        private static final String TAG = "SaveImageTask";
+        private Bitmap saveBitmap;
+        private String path;
+
+        final WeakReference<TempActivity> paintWeakReference;
+
+        public SaveImageTask(Bitmap saveBitmap, TempActivity activity) {
+            this.saveBitmap = saveBitmap;
+            paintWeakReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            TempActivity activity = paintWeakReference.get();
+            if (activity != null) {
+                String testPath = activity.getExternalFilesDir("ColorFy").getAbsolutePath();
+                Log.d(TAG, "doInBackground: testPath,," + testPath);
+                File dir = new File(testPath);
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+                File file = new File(dir, "test");
+                Log.d(TAG, "doInBackground: file,," + file.getAbsolutePath());
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(dir);
+                    saveBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                    out.close();
+                    return true;
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "doInBackground 00: " + e.getMessage());
+                } catch (IOException e) {
+                    Log.e(TAG, "doInBackground 11: " + e.getMessage());
+                } finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e(TAG, "doInBackground: wrong3,," + e.getMessage());
+                    }
+                }
+                return false;
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                super.onPostExecute(result);
+                TempActivity activity = paintWeakReference.get();
+                if (activity != null && !activity.isFinishing()) {
+                    Log.d(TAG, "onPostExecute: success");
+                    Toast.makeText(activity, "Success", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.d(TAG, "onPostExecute: 000");
+                }
+            } else {
+                Log.d(TAG, "onPostExecute: 111");
+            }
+        }
+
+    }
+    
+    以上代码是AsyncTask的标准用法，也是用以保存一张图片到本地，注意里面的
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                }
+    这里就是把创建的dir作为一个文件夹来使用，所以需要在此文件夹下指定一个位置，用以存储图片
+    File file = new File(dir, "test");
+    这样最终得到图片保存地址信息为/storage/emulated/0/Android/data/camera.editor.art.javatest/files/ColorFy/test
+    对应手机的“清除数据功能”
+        
