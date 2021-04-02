@@ -1,0 +1,35 @@
+    /**
+     * 获取 SIM 卡运营商的国家代码
+     *
+     * @return SIM 卡运营商的国家代码
+     */
+    public String getSimCountry() {
+        try {
+            TelephonyManager telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+            // SIM 卡运营商的国家代码
+            String simCountry = telephonyManager.getSimCountryIso();
+            Log.d(TAG, "getSimCountry simCountry: " + simCountry); // cn
+            // 注册的网络运营商的国家代码
+            String networkCountry = telephonyManager.getNetworkCountryIso();
+            Log.d(TAG, "getSimCountry networkCountry: " + networkCountry); // cn
+            if (simCountry != null && simCountry.trim().length() != 0) {
+                return simCountry.trim();
+            } else if (networkCountry != null && networkCountry.trim().length() != 0) {
+                return networkCountry.trim();
+            }
+        } catch (Exception e) {
+
+        }
+        return null;
+    }
+    
+        public void checkCountryCode(Context context) {
+        String code = Locale.getDefault().getCountry();// 方法获取本地国家代码
+        String language = Locale.getDefault().getLanguage(); // 获取系统设置的语言和区域
+        TelephonyManager telephonyManager = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+        String sim_code = telephonyManager.getSimCountryIso().toUpperCase(); // 检索国家/地区代码
+        Log.d(TAG, "checkCountryCode code: " + code); /*CN*/
+        Log.d(TAG, "checkCountryCode language: " + language); /*zh*/
+        Log.d(TAG, "checkCountryCode sim_code_0: " + telephonyManager.getSimCountryIso()); /*cn*/
+        Log.d(TAG, "checkCountryCode sim_code_1: " + sim_code); /*CN*/
+    }
