@@ -1,0 +1,39 @@
+    implementation "com.blankj:utilcode:1.25.9"
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    private void requestPermisssion() {
+        if (!PermissionUtils.isGranted(Manifest.permission.RECORD_AUDIO)) {
+            requestMicrophoePermission();
+        }
+    }
+
+    private void requestMicrophoePermission() {
+        //相机权限检查
+        PermissionUtils.permission(PermissionConstants.MICROPHONE, PermissionConstants.STORAGE)
+                .rationale(new PermissionUtils.OnRationaleListener() {
+                    @Override
+                    public void rationale(ShouldRequest shouldRequest) {
+                        shouldRequest.again(true);
+                    }
+                })
+                .callback(new PermissionUtils.FullCallback() {
+                    @Override
+                    public void onGranted(List<String> permissionsGranted) {
+
+                    }
+
+                    @Override
+                    public void onDenied(List<String> permissionsDeniedForever,
+                                         List<String> permissionsDenied) {
+                        if (!permissionsDeniedForever.isEmpty()) {
+
+                        } else {
+                            finish();
+                        }
+                    }
+                })
+                .theme(ScreenUtils::setFullScreen)
+                .request();
+    }
