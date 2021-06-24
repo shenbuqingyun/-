@@ -133,6 +133,7 @@ public class RawAssetsUtil {
 }
 
 
-使用
+使用 id和name 要对应起来
         int rawResourceId = R.raw.ynew;
         String url = RawAssetsUtil.getRawFilePath(this, rawResourceId, "ynew.wav");
+        
